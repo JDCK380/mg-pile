@@ -1,0 +1,12 @@
+{
+  "name": "mg-pile",
+  "version": "1.0.1",
+  "private": true,
+  "description": "MG 私桩：用手机蓝牙直连安悦私人充电桩的非官方开源工具（Android / 网页 / 微信小程序）",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/protocol.test.cjs && node tests/app.test.cjs && node tests/android-bridge.test.cjs && node tests/miniapp-protocol.test.cjs && node tests/miniapp-controller.test.cjs && node tests/miniapp-wx.test.cjs",
+    "build:web": "python build_web.py",
+    "build:apk": "gradlew assembleRelease"
+  }
+}

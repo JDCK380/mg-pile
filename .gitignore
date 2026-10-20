@@ -1,0 +1,31 @@
+# build output
+dist/
+android/build/
+*.apk
+*.apk.idsig
+*.aab
+
+# signing keys — never commit
+*.keystore
+*.jks
+*.p12
+
+# WeChat DevTools per-developer settings
+miniapp/project.private.config.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/
+__pycache__/
+
+# Gradle / Android Studio
+.gradle/
+build/
+local.properties
+keystore.properties
+*.iml
+.kotlin/
+captures/

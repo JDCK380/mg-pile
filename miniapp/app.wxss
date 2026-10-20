@@ -1,0 +1,15 @@
+/* 全局主题变量，跟随系统明暗（需 app.json darkmode: true） */
+page {
+  --surface: #fff; --field: #f3f4f6; --text: #191919; --sub: #81858d; --blue: #3482ff; --line: #f0f1f3;
+  --badge: #e7efff; --note-bg: #eaf1ff; --note: #60728d; --danger-bg: #fff0ee; --danger: #e85b54;
+  background: #f4f5f7;
+  font-family: MiSans, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+  page {
+    --surface: #1c1d21; --field: #292a30; --text: #eee; --sub: #92959e; --line: #2d2e35;
+    --badge: #202e49; --note-bg: #1e2a3f; --note: #a9bbd7; --danger-bg: #3d2526; --danger: #ff8a83;
+    background: #101114;
+  }
+}

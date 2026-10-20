@@ -1,0 +1,75 @@
+plugins {
+    id 'com.android.application'
+}
+
+apply from: 'web-assets.gradle'
+
+// Signing: keystore.properties in the repo root (git-ignored) or MGPILE_* environment variables.
+// Without either, release builds fall back to this machine's Android debug key (test only).
+def signingProps = new Properties()
+def propsFile = rootProject.file('keystore.properties')
+if (propsFile.exists()) propsFile.withReader('UTF-8') { signingProps.load(it) }
+def cfg = { String env, String prop, String fallback = null -> System.getenv(env) ?: signingProps.getProperty(prop) ?: fallback }
+def keystorePath = cfg('MGPILE_KEYSTORE', 'storeFile')
+
+android {
+    namespace 'local.mglive.piledebug'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'local.mglive.piledebug'
+        minSdk 26
+        targetSdk 35
+        versionCode 5
+        versionName '1.0.1'
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = [layout.buildDirectory.dir('generated/webAssets').get().asFile]
+        }
+    }
+
+    signingConfigs {
+        if (keystorePath) {
+            release {
+                storeFile rootProject.file(keystorePath)
+                storePassword cfg('MGPILE_STORE_PASS', 'storePassword', 'android')
+                keyAlias cfg('MGPILE_KEY_ALIAS', 'keyAlias', 'androiddebugkey')
+                keyPassword cfg('MGPILE_KEY_PASS', 'keyPassword', cfg('MGPILE_STORE_PASS', 'storePassword', 'android'))
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig keystorePath ? signingConfigs.release : signingConfigs.debug
+        }
+        debug {
+            // Same key as release when configured, so a debug build can also update an installed release.
+            if (keystorePath) signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+android.applicationVariants.configureEach { variant ->
+    variant.outputs.configureEach {
+        outputFileName = variant.buildType.name == 'release' ? "MG-Pile-${variant.versionName}.apk" : "MG-Pile-${variant.versionName}-${variant.buildType.name}.apk"
+    }
+}
+
+tasks.matching { it.name == 'preBuild' || (it.name.startsWith('merge') && it.name.endsWith('Assets')) }.configureEach { dependsOn 'generateWebAssets' }

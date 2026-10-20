@@ -1,0 +1,9 @@
+.wrap { padding: 16px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+.bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.count { color: var(--sub); font-size: 13px; }
+.actions { display: flex; gap: 8px; }
+.mini { margin: 0 !important; background: var(--surface) !important; color: var(--text) !important; border-radius: 12px !important; }
+.mini::after { border: 0 !important; }
+.log { flex: 1; min-height: 0; background: var(--surface); border-radius: 18px; padding: 14px; box-sizing: border-box; }
+.mono { font-family: Menlo, Consolas, monospace; font-size: 11px; line-height: 1.8; color: var(--sub); word-break: break-all; white-space: pre-wrap; }
+.tip { color: var(--sub); font-size: 12px; margin-top: 12px; line-height: 1.6; }

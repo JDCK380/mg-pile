@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict');
+const P=require('../web/protocol.js');
+assert.equal(P.hex(P.commands.info()),'68 B1 00 00 00 00 00 D9');
+assert.equal(P.hex(P.commands.start()),'68 B4 00 00 02 00 00 DF 01 00');
+assert.equal(P.hex(P.commands.stop()),'68 B6 00 00 01 00 00 DF 00');
+assert.equal(P.hex(P.commands.light(true)),'68 A0 00 00 07 00 00 CF 01 01 00 00 00 00 00');
+assert.equal(P.hex(P.commands.sync(0x12345678)),'68 B0 00 00 04 00 00 D4 78 56 34 12');
+assert.throws(()=>P.commands.reserve(true,'25:00','07:00'));
+assert.throws(()=>P.commands.volume(101));assert.throws(()=>P.vinBytes('WRONG'));
+assert.equal(P.vinBytes('LSJA24U60NS123456').length,17);
+const payload=new Uint8Array(59);payload.set(new TextEncoder().encode('MY-OWN-PILE'));payload[41]=1;payload[46]=1;payload.set([23,0,7,0],47);payload[51]=80;payload[58]=6;
+const full=P.frame(0xb1,payload,0xaa);
+for(let split=0;split<=full.length;split++){const p=new P.Parser();const a=p.push(full.slice(0,split)),b=p.push(full.slice(split));assert.equal(a.frames.length+b.frames.length,1)}
+const joined=new Uint8Array(full.length*2);joined.set(full);joined.set(full,full.length);assert.equal(new P.Parser().push(joined).frames.length,2);
+const bad=full.slice();bad[7]^=1;assert.equal(new P.Parser().push(bad).frames.length,0);
+const noise=new Uint8Array([1,2,3,...full]);assert.equal(new P.Parser().push(noise).frames.length,1);
+assert.deepEqual(P.sysInfo(payload),{pile:'MY-OWN-PILE',light:true,mode:1,schedule:[23,0,7,0],volume:80,status:6});
+assert.throws(()=>P.sysInfo(new Uint8Array(58)));
+const abnormal=new Uint8Array([0xaa,0xb1,0,0,255,255,0,0,...full]);assert.equal(new P.Parser().push(abnormal).frames.length,1);
+console.log('Protocol tests passed: command vectors, fragmented/coalesced frames, checksum, resync, payload bounds, VIN validation.');

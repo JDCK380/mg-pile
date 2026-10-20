@@ -1,0 +1,86 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: JavaScript tests
+        run: npm test
+      - name: Java scan-rule test
+        run: |
+          mkdir -p /tmp/jc
+          javac -d /tmp/jc android/src/local/mglive/piledebug/ScanRules.java tests/ScanRulesTest.java
+          java -cp /tmp/jc ScanRulesTest
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      KEYSTORE_B64: ${{ secrets.MGPILE_KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Signing key
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "MGPILE_KEYSTORE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+            echo "Using signing key from repository secrets"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "::error::Releases need the MGPILE_KEYSTORE_BASE64 secret, otherwise installed apps cannot be updated."
+            exit 1
+          else
+            echo "::warning::No MGPILE_KEYSTORE_BASE64 secret: this build is signed with the runner's debug key (test only)."
+          fi
+      - name: Build web console
+        run: python build_web.py
+      - name: Build APK
+        env:
+          MGPILE_STORE_PASS: ${{ secrets.MGPILE_STORE_PASS || 'android' }}
+          MGPILE_KEY_ALIAS: ${{ secrets.MGPILE_KEY_ALIAS || 'androiddebugkey' }}
+          MGPILE_KEY_PASS: ${{ secrets.MGPILE_KEY_PASS || secrets.MGPILE_STORE_PASS || 'android' }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+          mkdir -p dist && cp android/build/outputs/apk/release/*.apk dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mg-pile-${{ github.sha }}
+          path: |
+            dist/*.apk
+            dist/index.html
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.apk
+            dist/index.html
+          generate_release_notes: true

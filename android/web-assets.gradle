@@ -1,0 +1,37 @@
+// Renders web/template.html into the APK's assets/index.html, with the native BLE bridge
+// injected and browser-only text adjusted. Mirrors build_web.py (which builds the plain web console).
+def repoDir = rootProject.projectDir
+def webDir = new File(repoDir, 'web')
+def outDir = layout.buildDirectory.dir('generated/webAssets')
+
+tasks.register('generateWebAssets') {
+    description = 'Builds assets/index.html for the Android WebView from web/'
+    inputs.dir(webDir)
+    inputs.file(file('native-ble.js'))
+    outputs.dir(outDir)
+    doLast {
+        def read = { File f -> f.getText('UTF-8') }
+        def html = read(new File(webDir, 'template.html'))
+        def icon = 'data:image/png;base64,' + new File(webDir, 'favicon.png').bytes.encodeBase64().toString()
+        html = html.replace('__ICON__', icon)
+                   .replace('/*__PROTOCOL__*/', read(new File(webDir, 'protocol.js')))
+                   .replace('/*__APP__*/', read(new File(webDir, 'app.js')))
+        def bridge = read(file('native-ble.js'))
+        def replacements = [
+            ['<script>/* Ported', '<script>' + bridge + '</script><script>/* Ported'],
+            ["if(!isSecureContext)throw Error('请从 HTTPS 或 localhost 打开页面');", ''],
+            ['$(\'export\').onclick=()=>{', '$(\'export\').onclick=()=>{if(window.AndroidBLE){AndroidBLE.exportLog(logs.join(\'\\n\'));return;}'],
+            ['使用 Windows 或 Android 的 Chrome，在 HTTPS 或 localhost 中打开。', '此 APK 使用手机原生蓝牙，无需浏览器、电脑或网络。'],
+            ['$(\'capability\').textContent=`Web Bluetooth：${navigator.bluetooth?\'可用\':\'此浏览器不支持\'} · 安全上下文：${isSecureContext?\'是\':\'否（需要 HTTPS / localhost）\'}`;',
+             '$(\'capability\').textContent=\'安卓原生 BLE · 无需电脑 · 切到后台会自动断开\';'],
+        ]
+        replacements.each { from, to ->
+            if (!html.contains(from)) throw new GradleException("web/ changed: Android injection anchor not found: ${from.take(60)}")
+            def i = html.indexOf(from)
+            html = html.substring(0, i) + to + html.substring(i + from.length())
+        }
+        def dir = outDir.get().asFile
+        dir.mkdirs()
+        new File(dir, 'index.html').setText(html, 'UTF-8')
+    }
+}

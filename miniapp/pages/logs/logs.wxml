@@ -1,0 +1,15 @@
+<view class="wrap">
+  <view class="bar">
+    <text class="count">共 {{count}} 条</text>
+    <view class="actions">
+      <button class="mini" size="mini" bindtap="onCopy">复制</button>
+      <button class="mini" size="mini" bindtap="onExport">导出</button>
+      <button class="mini" size="mini" bindtap="onClear">清空</button>
+    </view>
+  </view>
+  <scroll-view scroll-y class="log" scroll-top="{{top}}">
+    <text user-select class="mono">{{text || '暂无日志'}}</text>
+    <view id="end"></view>
+  </scroll-view>
+  <view class="tip">VIN 发送日志已隐藏内容；设备名称、桩号及响应中可能含标识，分享日志前请检查。</view>
+</view>

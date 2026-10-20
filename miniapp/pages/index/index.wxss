@@ -1,0 +1,52 @@
+/* 视觉移植自 web/template.html（miuix 风格：大标题、圆角卡片、蓝色主按钮） */
+.page { padding: 24px 16px 32px; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.eyebrow { font-size: 12px; color: var(--sub); letter-spacing: 1px; }
+.title { font-size: 32px; font-weight: 750; letter-spacing: -1px; margin: 4px 0 6px; color: var(--text); }
+.sub { font-size: 13px; color: var(--sub); }
+.badge { padding: 7px 12px; border-radius: 20px; background: var(--badge); color: var(--blue); font-size: 12px; white-space: nowrap; }
+.badge.on { background: var(--blue); color: #fff; }
+.note { background: var(--note-bg); color: var(--note); padding: 12px 16px; border-radius: 18px; font-size: 12px; margin-bottom: 14px; }
+
+.card { background: var(--surface); border-radius: 24px; padding: 20px; margin-bottom: 14px; }
+.card.demo { padding: 8px 20px; border: 1px dashed var(--blue); }
+.card.link { display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: var(--text); }
+.arrow { color: var(--sub); font-size: 22px; }
+.h2 { font-size: 18px; font-weight: 650; margin-bottom: 14px; color: var(--text); }
+.big-h2 { font-size: 22px; }
+.p { font-size: 13px; color: var(--sub); line-height: 1.7; margin: 8px 0; }
+.p.dark { color: var(--text); }
+.muted { color: var(--sub); font-size: 12px; }
+.small-text { font-size: 11px; }
+
+.metrics { display: flex; gap: 8px; }
+.metric { flex: 1; background: var(--field); border-radius: 18px; padding: 14px 9px; min-width: 0; }
+.metric .small { display: block; font-size: 11px; color: var(--sub); }
+.metric .strong { display: block; font-size: 15px; font-weight: 650; margin-top: 10px; color: var(--text); word-break: break-all; }
+.primary-metric .strong { color: var(--blue); font-size: 20px; }
+
+.label { font-size: 13px; color: var(--sub); margin: 14px 0 8px; }
+.input { background: var(--field); border-radius: 14px; padding: 0 14px; height: 48px; line-height: 48px; color: var(--text); font-size: 15px; }
+
+.row { display: flex; gap: 10px; align-items: center; margin: 12px 0; }
+.row > .btn, .row > .picker { flex: 1; }
+.btn { margin: 0 !important; width: auto !important; min-width: 0; padding: 0 10px !important; height: 48px; line-height: 48px; border-radius: 16px !important; background: var(--field) !important; color: var(--text) !important; font-size: 14px !important; font-weight: 600 !important; border: 0 !important; }
+.btn::after { border: 0 !important; }
+.btn.primary { background: var(--blue) !important; color: #fff !important; }
+.btn.danger { background: var(--danger-bg) !important; color: var(--danger) !important; }
+.btn.big { width: 100% !important; height: 54px; line-height: 54px; font-size: 16px !important; margin: 6px 0 !important; }
+.btn.narrow { flex: none !important; padding: 0 16px !important; }
+.btn[disabled] { opacity: .35; }
+.slider { flex: 1; margin: 0 6px !important; }
+
+.check { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--text); line-height: 1.5; }
+.check text { flex: 1; }
+.message { color: var(--blue); font-size: 13px; line-height: 1.7; margin-top: 12px; }
+.fold { font-size: 13px; color: var(--sub); margin-top: 14px; }
+.footer { text-align: center; color: var(--sub); font-size: 12px; margin-top: 18px; }
+
+.backdrop { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 100; display: flex; align-items: flex-end; justify-content: center; padding: 16px; box-sizing: border-box; }
+.sheet { background: var(--surface); border-radius: 28px; width: 100%; padding: 24px; box-sizing: border-box; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+.devices { max-height: 50vh; }
+.device { display: flex; justify-content: space-between; align-items: center; padding: 14px 4px; border-bottom: 1px solid var(--line); }
+.device-name { font-size: 15px; font-weight: 600; color: var(--text); }
